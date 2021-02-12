@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class OrientComposableStepMapper {
 
     // SAVE
-    static StepVertex composableStepToVertex(final ComposableStep composableStep, OVertex oVertex, ODatabaseSession dbSession) {
+    static StepVertex composableStepToVertex(final ComposableStep composableStep, OVertex oVertex, ODatabaseSession dbSession) { // TODO - Remove that OVertex & session from here
         return StepVertex.builder()
             .from(oVertex)
             .usingSession(dbSession)
@@ -23,7 +23,7 @@ public class OrientComposableStepMapper {
             .withStrategy(composableStep.strategy)
             .withDefaultParameters(composableStep.defaultParameters)
             .withExecutionParameters(composableStep.executionParameters)
-            .withSteps(composableStep.steps)
+            .withSteps(composableStep.steps) // TODO - pass list<StepVertex> or list<StepRelation> instead
             .build();
     }
 

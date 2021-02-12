@@ -177,7 +177,7 @@ public class OrientComposableStepRepository implements ComposableStepRepository,
         Optional<OElement> stepRecord = load(composableStep.id, dbSession);
         OVertex oVertex = (OVertex) stepRecord.orElse(dbSession.newVertex(STEP_CLASS));
 
-        StepVertex stepVertex = composableStepToVertex(composableStep, oVertex, dbSession);
+        StepVertex stepVertex = composableStepToVertex(composableStep, oVertex, dbSession); // TODO - reverse logic. build wrapper and THEN load and update if needed...
         return stepVertex.save(dbSession);
     }
 
