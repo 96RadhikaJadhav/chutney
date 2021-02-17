@@ -691,12 +691,15 @@ public class OrientComposableStepRepositoryTest extends AbstractOrientDatabaseTe
             "leaf empty param", "value is set",
             "leaf second param", "" /*value is removed*/
         );
-        ComposableStep leafWithOverride = ComposableStep.builder().from(leaf).withExecutionParameters(leafExecutionParameters).build();
+        ComposableStep leafWithOverride = ComposableStep.builder()
+            .from(leaf)
+            .withExecutionParameters(leafExecutionParameters)
+            .build();
 
         Map<String, String> parentDefaultParameters = Maps.of(
             "parent default param", "parent default value",
             "parent empty param", ""
-        ) ;
+        );
 
         final ComposableStep parent = saveAndReload(
             ComposableStep.builder()
