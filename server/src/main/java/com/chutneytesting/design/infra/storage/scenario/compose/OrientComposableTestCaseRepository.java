@@ -126,7 +126,7 @@ public class OrientComposableTestCaseRepository implements ComposableTestCaseRep
             throw new ScenarioNotFoundException(composableTestCase.id, composableTestCase.metadata.version());
         }
         OVertex testCase = (OVertex) stepRecord.orElseGet(() -> dbSession.newVertex(TESTCASE_CLASS));
-        TestCaseVertex testCaseVertex = testCaseToVertex(composableTestCase, testCase);
+        TestCaseVertex testCaseVertex = testCaseToVertex(composableTestCase, testCase, dbSession);
         return testCaseVertex.save(dbSession);
     }
 }

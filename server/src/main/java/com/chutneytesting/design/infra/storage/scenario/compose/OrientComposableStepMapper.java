@@ -1,5 +1,7 @@
 package com.chutneytesting.design.infra.storage.scenario.compose;
 
+import static java.util.stream.Collectors.toList;
+
 import com.chutneytesting.design.domain.scenario.compose.ComposableStep;
 import com.chutneytesting.design.domain.scenario.compose.Strategy;
 import com.chutneytesting.design.infra.storage.scenario.compose.wrapper.StepVertex;
@@ -8,22 +10,23 @@ import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class OrientComposableStepMapper {
 
     // SAVE
-    static StepVertex composableStepToVertex(final ComposableStep composableStep, OVertex oVertex, ODatabaseSession dbSession) { // TODO - Remove that OVertex & session from here
+    static StepVertex composableStepToVertex(final ComposableStep composableStep, OVertex oVertex, ODatabaseSession dbSession) {
         return StepVertex.builder()
             .from(oVertex)
             .usingSession(dbSession)
+            .withId(composableStep.id)
             .withName(composableStep.name)
             .withTags(composableStep.tags)
             .withImplementation(composableStep.implementation)
             .withStrategy(composableStep.strategy)
             .withDefaultParameters(composableStep.defaultParameters)
             .withExecutionParameters(composableStep.executionParameters)
-            .withSteps(composableStep.steps) // TODO - pass list<StepVertex> or list<StepRelation> instead
+            .withSteps(composableStep.steps)
+            .withRelations(composableStep.steps.stream().map(s -> composableStepToVertex(s, null, dbSession)).collect(toList()))
             .build();
     }
 
@@ -54,7 +57,7 @@ public class OrientComposableStepMapper {
     public static List<ComposableStep> vertexToComposableStep(List<StepVertex> subSteps) {
         return subSteps.stream()
             .map(OrientComposableStepMapper::vertexToComposableStep)
-            .collect(Collectors.toList());
+            .collect(toList());
     }
 
 }

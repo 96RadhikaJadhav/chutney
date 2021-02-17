@@ -13,7 +13,6 @@ import static com.chutneytesting.design.infra.storage.scenario.compose.orient.Or
 import static java.util.Optional.ofNullable;
 
 import com.chutneytesting.design.domain.scenario.ScenarioNotFoundException;
-import com.chutneytesting.design.domain.scenario.compose.ComposableStep;
 import com.chutneytesting.security.domain.User;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -37,11 +36,11 @@ public class TestCaseVertex {
     private final OVertex testCaseVertex;
     private final StepVertex scenario; // @see class documentation above
 
-    private TestCaseVertex(OVertex testCaseVertex, List<ComposableStep> subSteps) {
+    private TestCaseVertex(OVertex testCaseVertex, List<StepVertex> subSteps) {
         this.testCaseVertex = testCaseVertex;
         this.scenario = StepVertex.builder()
             .from(testCaseVertex)
-            .withSteps(subSteps)
+            .withRelations(subSteps)
             .build();
     }
 
@@ -112,7 +111,7 @@ public class TestCaseVertex {
         private String datasetId;
         private Date updateDate;
         private String author;
-        private List<ComposableStep> steps;
+        private List<StepVertex> steps;
 
         private TestCaseVertexBuilder() {}
 
@@ -183,7 +182,7 @@ public class TestCaseVertex {
             return this;
         }
 
-        public TestCaseVertexBuilder withSteps(List<ComposableStep> composableSteps) {
+        public TestCaseVertexBuilder withSteps(List<StepVertex> composableSteps) {
             this.steps = composableSteps;
             return this;
         }
