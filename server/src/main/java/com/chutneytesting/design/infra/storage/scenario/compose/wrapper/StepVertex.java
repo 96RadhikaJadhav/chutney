@@ -9,7 +9,6 @@ import static com.chutneytesting.design.infra.storage.scenario.compose.orient.Or
 import static com.chutneytesting.design.infra.storage.scenario.compose.orient.OrientComponentDB.STEP_CLASS_PROPERTY_TAGS;
 import static com.chutneytesting.design.infra.storage.scenario.compose.orient.OrientUtils.load;
 import static com.chutneytesting.design.infra.storage.scenario.compose.orient.OrientUtils.setOrRemoveProperty;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -19,9 +18,7 @@ import com.chutneytesting.design.domain.scenario.compose.ComposableStep;
 import com.chutneytesting.design.domain.scenario.compose.ComposableStepNotFoundException;
 import com.chutneytesting.design.domain.scenario.compose.Strategy;
 import com.chutneytesting.design.infra.storage.scenario.compose.orient.OrientUtils;
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
@@ -39,14 +36,12 @@ public class StepVertex {
 
     private final OVertex vertex;
     private final List<ComposableStep> steps;
-    private final List<StepRelation> relations;
     private final Map<String, String> defaultParameters;
     private final Map<String, String> overrideExecutionParameters;
 
-    private StepVertex(OVertex vertex, List<ComposableStep> steps, List<StepRelation> relations, Map<String, String> defaultParameters, Map<String, String> overrideExecutionParameters) {
+    private StepVertex(OVertex vertex, List<ComposableStep> steps, Map<String, String> defaultParameters, Map<String, String> overrideExecutionParameters) {
         this.vertex = vertex;
         this.steps = steps;
-        this.relations = relations;
         this.defaultParameters = defaultParameters;
         this.overrideExecutionParameters = overrideExecutionParameters;
     }
@@ -76,13 +71,13 @@ public class StepVertex {
     }
 
     private void saveChildrenEdges(ODatabaseSession dbSession) {
-        ofNullable(steps).ifPresent(s -> this.updateSubStepReferences(s, relations, dbSession));
+        ofNullable(steps).ifPresent(s -> this.updateSubStepReferences(s, dbSession));
         this.listChildrenEdges()
             .forEach(StepRelation::save);
     }
 
     ///// Updates children edges - TODO - Next to refactor
-    private void updateSubStepReferences(List<ComposableStep> subSteps, List<StepRelation> relations, ODatabaseSession dbSession) {
+    private void updateSubStepReferences(List<ComposableStep> subSteps, ODatabaseSession dbSession) {
         this.removeAllSubStepReferences();
 
         subSteps.stream()
@@ -220,12 +215,12 @@ public class StepVertex {
         return vertex.getProperty(STEP_CLASS_PROPERTY_STRATEGY);
     }
 
-    public Map<String, String> executionParameters() {
-        return this.overrideExecutionParameters;
-    }
-
     public static StepVertexBuilder builder() {
         return new StepVertexBuilder();
+    }
+
+    public Map<String, String> executionParameters() {
+        return this.overrideExecutionParameters;
     }
 
     public static class StepVertexBuilder {
@@ -242,7 +237,6 @@ public class StepVertex {
         private Map<String, String> defaultParameters;
         private Map<String, String> executionParameters;
         private List<ComposableStep> steps;
-        private List<StepVertex> relations;
 
         private StepVertexBuilder() {}
 
@@ -263,9 +257,7 @@ public class StepVertex {
                 setOrRemoveProperty(vertex, STEP_CLASS_PROPERTY_STRATEGY, strategy, OType.EMBEDDED);
             });
 
-            ofNullable(steps).orElse(emptyList());
-
-           return new StepVertex(vertex, ofNullable(steps).orElse(emptyList()), emptyList(), defaultParameters, ofNullable(executionParameters).orElse(emptyMap()));
+           return new StepVertex(vertex, steps, defaultParameters, ofNullable(executionParameters).orElse(emptyMap()));
         }
 
         public StepVertexBuilder from(OVertex vertex) {
@@ -315,11 +307,6 @@ public class StepVertex {
 
         public StepVertexBuilder withSteps(List<ComposableStep> steps) {
             this.steps = steps;
-            return this;
-        }
-
-        public StepVertexBuilder withRelations(List<StepVertex> relations) {
-            this.relations = relations;
             return this;
         }
     }

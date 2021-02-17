@@ -1,28 +1,21 @@
 package com.chutneytesting.design.infra.storage.scenario.compose;
 
 import static com.chutneytesting.design.domain.scenario.compose.ComposableTestCaseRepository.COMPOSABLE_TESTCASE_REPOSITORY_SOURCE;
-import static com.chutneytesting.design.infra.storage.scenario.compose.OrientComposableStepMapper.composableStepToVertex;
 import static com.chutneytesting.design.infra.storage.scenario.compose.OrientComposableStepMapper.vertexToComposableStep;
 import static java.time.Instant.now;
 
 import com.chutneytesting.design.domain.scenario.TestCaseMetadata;
 import com.chutneytesting.design.domain.scenario.TestCaseMetadataImpl;
 import com.chutneytesting.design.domain.scenario.compose.ComposableScenario;
-import com.chutneytesting.design.domain.scenario.compose.ComposableStepNotFoundException;
 import com.chutneytesting.design.domain.scenario.compose.ComposableTestCase;
 import com.chutneytesting.design.infra.storage.scenario.compose.wrapper.TestCaseVertex;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Date;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
-
-import static com.chutneytesting.design.infra.storage.scenario.compose.orient.OrientUtils.load;
 
 class OrientComposableTestCaseMapper {
 
     // SAVE
-    static TestCaseVertex testCaseToVertex(final ComposableTestCase composableTestCase, OVertex dbTestCase, ODatabaseSession dbSession) {
+    static TestCaseVertex testCaseToVertex(final ComposableTestCase composableTestCase, OVertex dbTestCase) {
         return TestCaseVertex.builder()
             .from(dbTestCase)
             .withId(composableTestCase.id)
@@ -34,12 +27,7 @@ class OrientComposableTestCaseMapper {
             .withDatasetId(composableTestCase.metadata.datasetId().orElse(null))
             .withUpdateDate(Date.from(now()))
             .withAuthor(composableTestCase.metadata.author())
-            .withSteps(
-                composableTestCase.composableScenario.composableSteps.stream()
-                    .map(s -> Pair.of(s, (OVertex) load(s.id, dbSession).orElseThrow(() -> new ComposableStepNotFoundException(s.id))))
-                    .map(p -> composableStepToVertex(p.getKey(), p.getValue(), dbSession))
-                    .collect(Collectors.toList())
-            )
+            .withSteps(composableTestCase.composableScenario.composableSteps)
             .build();
     }
 

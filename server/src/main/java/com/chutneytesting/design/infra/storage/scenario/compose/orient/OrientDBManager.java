@@ -26,7 +26,7 @@ public class OrientDBManager {
 
     private OrientConfigurationProperties orientConfigurationProperties;
     private OrientDB orientDB;
-    private Map<String, ODatabasePool> dbPools = new HashMap<>();
+    private Map<String,ODatabasePool> dbPools = new HashMap<>();
 
     public OrientDBManager(OrientConfigurationProperties orientConfigurationProperties) {
         this.orientConfigurationProperties = orientConfigurationProperties;
