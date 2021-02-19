@@ -75,9 +75,18 @@ public class StepVertex {
             .forEach(StepRelation::save);
     }
 
-    ///// Updates children edges - TODO - Next to refactor
+    ///// Updates children edges
     private void updateSubStepReferences(List<ComposableStep> subSteps, ODatabaseSession dbSession) {
         this.removeAllSubStepReferences();
+
+        /*        List<StepRelation> collect = ofNullable(steps).orElse(emptyList()).stream()
+            .map(s -> {
+                StepRelation relation = new StepRelation(dbSession.newEdge(vertex, (OVertex) load(s.id, dbSession).orElseThrow(() -> new ComposableStepNotFoundException(s.id))));
+                relation.setExecutionParameters(s.executionParameters);
+                return relation;
+            })
+            .peek(StepRelation::save)
+            .collect(toList());*/
 
         List<StepVertex> vertices = subSteps.stream()
             .map(subStep ->
